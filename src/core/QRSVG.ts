@@ -41,6 +41,7 @@ export default class QRSVG {
   _qr?: QRCode;
   _image?: HTMLImageElement;
   _imageUri?: string;
+  _prefix: string;
 
   //TODO don't pass all options to this class
   constructor(options: RequiredOptions) {
@@ -54,6 +55,7 @@ export default class QRSVG {
     this._element.setAttribute("height", String(options.height));
     this._defs = this._window.document.createElementNS("http://www.w3.org/2000/svg", "defs");
     this._element.appendChild(this._defs);
+    this._prefix = "_" + Math.random().toString(36).substring(2, 10);
 
     if (options.imageOptions.saveAsBlob) {
       if (options.nodeCanvas?.createCanvas) {
@@ -197,7 +199,7 @@ export default class QRSVG {
     });
 
     this._dotsClipPath = this._window.document.createElementNS("http://www.w3.org/2000/svg", "clipPath");
-    this._dotsClipPath.setAttribute("id", "clip-path-dot-color");
+    this._dotsClipPath.setAttribute("id", `${this._prefix}-clip-path-dot-color`);
     this._defs.appendChild(this._dotsClipPath);
 
     this._createColor({
@@ -270,7 +272,7 @@ export default class QRSVG {
 
       if (options.cornersSquareOptions?.gradient || options.cornersSquareOptions?.color) {
         cornersSquareClipPath = this._window.document.createElementNS("http://www.w3.org/2000/svg", "clipPath");
-        cornersSquareClipPath.setAttribute("id", `clip-path-corners-square-color-${column}-${row}`);
+        cornersSquareClipPath.setAttribute("id", `${this._prefix}-clip-path-corners-square-color-${column}-${row}`);
         this._defs.appendChild(cornersSquareClipPath);
         this._cornersSquareClipPath = this._cornersDotClipPath = cornersDotClipPath = cornersSquareClipPath;
 
@@ -327,7 +329,7 @@ export default class QRSVG {
 
       if (options.cornersDotOptions?.gradient || options.cornersDotOptions?.color) {
         cornersDotClipPath = this._window.document.createElementNS("http://www.w3.org/2000/svg", "clipPath");
-        cornersDotClipPath.setAttribute("id", `clip-path-corners-dot-color-${column}-${row}`);
+        cornersDotClipPath.setAttribute("id", `${this._prefix}-clip-path-corners-dot-color-${column}-${row}`);
         this._defs.appendChild(cornersDotClipPath);
         this._cornersDotClipPath = cornersDotClipPath;
 
@@ -487,13 +489,13 @@ export default class QRSVG {
     rect.setAttribute("y", String(y));
     rect.setAttribute("height", String(height));
     rect.setAttribute("width", String(width));
-    rect.setAttribute("clip-path", `url('#clip-path-${name}')`);
+    rect.setAttribute("clip-path", `url('#${this._prefix}-clip-path-${name}')`);
 
     if (options) {
       let gradient: SVGElement;
       if (options.type === gradientTypes.radial) {
         gradient = this._window.document.createElementNS("http://www.w3.org/2000/svg", "radialGradient");
-        gradient.setAttribute("id", name);
+        gradient.setAttribute("id", `${this._prefix}-${name}`);
         gradient.setAttribute("gradientUnits", "userSpaceOnUse");
         gradient.setAttribute("fx", String(x + width / 2));
         gradient.setAttribute("fy", String(y + height / 2));
@@ -534,7 +536,7 @@ export default class QRSVG {
         }
 
         gradient = this._window.document.createElementNS("http://www.w3.org/2000/svg", "linearGradient");
-        gradient.setAttribute("id", name);
+        gradient.setAttribute("id", `${this._prefix}-${name}`);
         gradient.setAttribute("gradientUnits", "userSpaceOnUse");
         gradient.setAttribute("x1", String(Math.round(x0)));
         gradient.setAttribute("y1", String(Math.round(y0)));
